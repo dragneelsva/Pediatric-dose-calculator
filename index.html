@@ -4,9 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Dr. Shivankar's Pediatric Dosage Calculator</title>
+
+  <!-- ✅ Minimal PWA setup (no icons) -->
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#9ddbe4" />
-  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <meta name="theme-color" content="#042233" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="PedsDose">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
   <style>
     :root{
       --bg:#f3fbff;
@@ -35,6 +40,229 @@
     }
     button.btn{
       background:linear-gradient(180deg,#9ddbe4,#7fd7df);
+      border:none;padding:10px 14px;border-radius:8px;font-weight:700;box-shadow:0 6px 12px rgba(0,0,0,0.06);
+      font-size:14px;cursor:pointer;transition:all 0.2s ease-in-out;
+    }
+    button.btn:hover{transform:translateY(-1px);box-shadow:0 8px 14px rgba(0,0,0,0.08);}
+    .card{
+      background:var(--card);
+      border-radius:10px;
+      padding:12px;
+      margin:10px 0;
+      box-shadow:var(--shadow);
+      border:1px solid #eef7f8;
+    }
+    .card h2{margin:0 0 8px 0;font-size:16px}
+    .small{font-size:13px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    .item{background:linear-gradient(180deg,#fff,#fbfeff);padding:10px;border-radius:8px;border:1px solid #eef7f8;text-align:center;}
+    .label{font-weight:700;font-size:13px}
+    .value{font-size:18px;font-weight:800;margin-top:6px}
+    .unit{font-size:12px;color:var(--muted);margin-top:4px}
+    .full{grid-column:1 / -1}
+    @media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:18px}}
+  </style>
+</head>
+<body>
+  <div class="app" role="main">
+    <header>
+      <h1>Dr. Shivankar's Pediatric Dosage Calculator</h1>
+      <p class="lead">Single weight input — scroll for every drug's dose (ml / mg)</p>
+    </header>
+
+    <section class="card" aria-labelledby="weight-label">
+      <label id="weight-label" class="small">Patient weight (kg)</label>
+      <div class="top-row">
+        <input id="weight" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Enter weight" />
+        <button class="btn" id="calcBtn">Calc</button>
+      </div>
+      <div class="small">All doses are auto-calculated. Use clinical judgement.</div>
+    </section>
+
+    <!-- Paracetamol -->
+    <section class="card">
+      <h2>Paracetamol</h2>
+      <div class="grid">
+        <div class="item"><div class="label">Drops</div><div class="value" id="parac-drops">— ml</div></div>
+        <div class="item"><div class="label">Dolo 120</div><div class="value" id="parac-dolo120">— ml</div></div>
+        <div class="item"><div class="label">Dolo 250</div><div class="value" id="parac-dolo250">— ml</div></div>
+        <div class="item"><div class="label">Fepanil 500</div><div class="value" id="parac-fep500">— ml</div></div>
+        <div class="item full"><div class="label">Tablet (total)</div><div class="value" id="parac-tablet">— mg</div></div>
+      </div>
+    </section>
+
+    <!-- Cold & Cough Syrup -->
+    <section class="card">
+      <h2>Cold &amp; Cough Syrup</h2>
+      <div class="grid">
+        <div class="item"><div class="label">Cold Syrup</div><div class="value" id="cold-syrup">—</div></div>
+        <div class="item"><div class="label">Cough Syrup</div><div class="value" id="cough-syrup">—</div></div>
+      </div>
+    </section>
+
+    <!-- Fenanil-M -->
+    <section class="card">
+      <h2>Fenanil-M</h2>
+      <div class="grid">
+        <div class="item"><div class="label">Fepanil-M 50mg</div><div class="value" id="fen50">— ml</div></div>
+        <div class="item"><div class="label">Fepanil-M 100mg</div><div class="value" id="fen100">— ml</div></div>
+      </div>
+    </section>
+
+    <!-- Amoxyclav -->
+    <section class="card">
+      <h2>Amoxyclav</h2>
+      <div class="grid">
+        <div class="item"><div class="label">80mg Drops</div><div class="value" id="amox-drops">— ml</div></div>
+        <div class="item"><div class="label">Fightox 228mg</div><div class="value" id="fightox">— ml</div></div>
+        <div class="item"><div class="label">Augmentin 457mg</div><div class="value" id="augmentin">— ml</div></div>
+      </div>
+    </section>
+
+    <!-- Azithromycin -->
+    <section class="card">
+      <h2>Azithromycin</h2>
+      <div class="grid">
+        <div class="item full"><div class="label">Azithral 200mg</div><div class="value" id="azithral">— ml</div></div>
+      </div>
+    </section>
+
+    <!-- Vomiting -->
+    <section class="card">
+      <h2>Vomiting</h2>
+      <div class="grid">
+        <div class="item"><div class="label">Domstal Baby (drops)</div><div class="value" id="domstal">— ml</div></div>
+        <div class="item"><div class="label">Emeset (syrup)</div><div class="value" id="emeset">— ml</div></div>
+        <div class="item"><div class="label">Tablet</div><div class="value" id="vom-tablet">— mg</div></div>
+      </div>
+    </section>
+
+    <!-- Domstal Syrup -->
+    <section class="card">
+      <h2>Domstal Syrup</h2>
+      <div class="grid">
+        <div class="item full"><div class="label">Syrup</div><div class="value" id="domstal-syrup">— ml</div></div>
+      </div>
+    </section>
+
+    <!-- Cefixime -->
+    <section class="card">
+      <h2>Cefixime</h2>
+      <div class="grid">
+        <div class="item"><div class="label">Cefi 50mg</div><div class="value" id="cefi50">— ml</div></div>
+        <div class="item"><div class="label">Ziprox 100mg</div><div class="value" id="ziprox100">— ml</div></div>
+      </div>
+    </section>
+
+    <!-- Hicope -->
+    <section class="card">
+      <h2>Hicope</h2>
+      <div class="grid">
+        <div class="item full"><div class="label">Formulation 10</div><div class="value" id="hicope">— ml</div></div>
+      </div>
+    </section>
+
+    <footer style="text-align:center;color:var(--muted);font-size:12px;padding-top:10px">
+      Values calculated from your formulas. Use clinical judgment.
+    </footer>
+  </div>
+
+<script>
+function round2(n){return Math.round((n+Number.EPSILON)*100)/100;}
+function fmtVal(n,unit){if(!isFinite(n))return'— '+unit;return round2(n)+' '+unit;}
+function coldSyrupChart(w){
+  if(w<3)return'—';
+  if(w<4)return'4 drops';
+  if(w<5)return'5 drops';
+  if(w<6)return'6 drops';
+  if(w<9)return'0.4 ml';
+  if(w<12)return'2.5 ml';
+  if(w<14)return'3 ml';
+  if(w<17)return'3.5 ml';
+  if(w<20)return'4 ml';
+  return'5 ml';
+}
+function coughSyrupChart(w){
+  if(w<9)return'—';
+  if(w<13)return'2.5 ml';
+  if(w<16)return'3 ml';
+  if(w<18)return'3.5 ml';
+  return'4 ml';
+}
+function calculateAll(w){
+  if(!w||w<=0)return null;
+  return{
+    paracDrops:(15*w)/100,
+    paracDolo120:(15*5*w)/120,
+    paracDolo250:(15*5*w)/250,
+    paracFep500:(15*5*w)/500,
+    paracTablet:15*w,
+    cold:coldSyrupChart(w),
+    cough:coughSyrupChart(w),
+    fen50:(13*5*w)/120,
+    fen100:(13*5*w)/250,
+    amox80:(10*w)/80,
+    fightox:(15*5*w)/228,
+    augmentin:(15*5*w)/400,
+    azithral:(10*5*w)/200,
+    domstal:(0.4*w)/10,
+    emeset:(0.1*5*w)/2,
+    vomTablet:(0.1*w)/4,
+    domstalSyrup:(0.3*5*w)/5,
+    cefi50:(25*w)/50,
+    ziprox100:(25*w)/100,
+    hicope:(0.5*5*w)/10
+  };
+}
+const weightInput=document.getElementById('weight');
+const calcBtn=document.getElementById('calcBtn');
+
+function updateUI(){
+  const w=Number(weightInput.value);
+  const d=calculateAll(w);
+  const map={
+    'parac-drops':['paracDrops','ml'],
+    'parac-dolo120':['paracDolo120','ml'],
+    'parac-dolo250':['paracDolo250','ml'],
+    'parac-fep500':['paracFep500','ml'],
+    'parac-tablet':['paracTablet','mg'],
+    'cold-syrup':['cold',''],
+    'cough-syrup':['cough',''],
+    'fen50':['fen50','ml'],
+    'fen100':['fen100','ml'],
+    'amox-drops':['amox80','ml'],
+    'fightox':['fightox','ml'],
+    'augmentin':['augmentin','ml'],
+    'azithral':['azithral','ml'],
+    'domstal':['domstal','ml'],
+    'emeset':['emeset','ml'],
+    'vom-tablet':['vomTablet','mg'],
+    'domstal-syrup':['domstalSyrup','ml'],
+    'cefi50':['cefi50','ml'],
+    'ziprox100':['ziprox100','ml'],
+    'hicope':['hicope','ml']
+  };
+  for(const [id,[key,unit]] of Object.entries(map)){
+    const el=document.getElementById(id);
+    if(!el)continue;
+    if(!d){el.textContent='— '+unit;continue;}
+    if(unit==='ml' || unit==='mg')el.textContent=fmtVal(d[key],unit);
+    else el.textContent=d[key];
+  }
+}
+
+calcBtn.addEventListener('click',updateUI);
+weightInput.addEventListener('input',()=>{clearTimeout(weightInput._deb);weightInput._deb=setTimeout(updateUI,300);});
+weightInput.addEventListener('keydown',e=>{if(e.key==='Enter')updateUI();});
+window.onload=()=>{weightInput.focus();};
+
+// ✅ Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(()=>console.log('Service Worker ready'));
+}
+</script>
+</body>
+</html>      background:linear-gradient(180deg,#9ddbe4,#7fd7df);
       border:none;padding:10px 14px;border-radius:8px;font-weight:700;box-shadow:0 6px 12px rgba(0,0,0,0.06);
       font-size:14px;cursor:pointer;transition:all 0.2s ease-in-out;
     }

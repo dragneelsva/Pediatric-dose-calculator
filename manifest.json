@@ -1,9 +1,8 @@
 {
-  "name": "Pediatric Dosage Calculator",
-  "short_name": "DosageCalc",
-  "start_url": ".",
+  "name": "Dr. Shivankar's Pediatric Dosage Calculator",
+  "short_name": "PedsDose",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#f3fbff",
-  "theme_color": "#042233",
-  "icons": []
+  "theme_color": "#042233"
 }

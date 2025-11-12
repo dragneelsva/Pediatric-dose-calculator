@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Dr. Shivankar's Pediatric Dosage Calculator</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#9ddbe4" />
+  <link rel="icon" href="icons/icon-192.png" type="image/png" />
+  <style>
+    :root{
+      --bg:#f3fbff;
+      --card:#ffffff;
+      --muted:#72818a;
+      --accent:#dff6fb;
+      --primary:#042233;
+      --shadow:0 6px 18px rgba(6,18,24,0.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+    body{
+      background:linear-gradient(180deg,var(--bg),#f9feff);
+      color:var(--primary);
+      -webkit-font-smoothing:antialiased;
+      padding-bottom:40px;
+    }
+    .app{max-width:520px;margin:8px auto;padding:12px;}
+    header{text-align:left;padding:12px 6px;margin-bottom:6px;}
+    h1{margin:6px 0;font-size:20px;}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .top-row{display:flex;gap:10px;align-items:center;margin:12px 0;}
+    input[type="number"]{
+      flex:1;padding:12px;border-radius:8px;border:1px solid #e6eef1;font-size:16px;
+      -moz-appearance:textfield;
+    }
+    button.btn{
+      background:linear-gradient(180deg,#9ddbe4,#7fd7df);
+      border:none;padding:10px 14px;border-radius:8px;font-weight:700;box-shadow:0 6px 12px rgba(0,0,0,0.06);
+      font-size:14px;cursor:pointer;transition:all 0.2s ease-in-out;
+    }
+    button.btn:hover{transform:translateY(-1px);box-shadow:0 8px 14px rgba(0,0,0,0.08);}
+    .card{
+      background:var(--card);
+      border-radius:10px;
+      padding:12px;
+      margin:10px 0;
+      box-shadow:var(--shadow);
+      border:1px solid #eef7f8;
+    }
+    .card h2{margin:0 0 8px 0;font-size:16px}
+    .small{font-size:13px;color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+    .item{background:linear-gradient(180deg,#fff,#fbfeff);padding:10px;border-radius:8px;border:1px solid #eef7f8;text-align:center;}
+    .label{font-weight:700;font-size:13px}
+    .value{font-size:18px;font-weight:800;margin-top:6px}
+    .full{grid-column:1 / -1}
+    @media (max-width:520px){.grid{grid-template-columns:1fr}h1{font-size:18px}}
+  </style>
+</head>
+<body>
+  <div class="app" role="main">
+    <header>
+      <h1>Dr. Shivankar's Pediatric Dosage Calculator</h1>
+      <p class="lead">Single weight input — scroll for every drug's dose (ml / mg)</p>
+    </header>
+
+    <section class="card" aria-labelledby="weight-label">
+      <label id="weight-label" class="small">Patient weight (kg)</label>
+      <div class="top-row">
+        <input id="weight" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Enter weight" />
+        <button class="btn" id="calcBtn">Calc</button>
+      </div>
+      <div class="small">All doses are auto-calculated. Use clinical judgement.</div>
+    </section>
+
+    <!-- Drug cards here (same as before) -->
+    <!-- ... (keep your existing drug sections with Domstal Syrup) ... -->
+
+    <footer style="text-align:center;color:var(--muted);font-size:12px;padding-top:10px">
+      Values calculated from your formulas. Use clinical judgment.
+    </footer>
+  </div>
+
+<script>
+function round2(n){return Math.round((n+Number.EPSILON)*100)/100;}
+function fmtVal(n,unit){if(!isFinite(n))return'— '+unit;return round2(n)+' '+unit;}
+function coldSyrupChart(w){
+  if(w<3)return'—';
+  if(w<4)return'4 drops';
+  if(w<5)return'5 drops';
+  if(w<6)return'6 drops';
+  if(w<9)return'0.4 ml';
+  if(w<12)return'2.5 ml';
+  if(w<14)return'3 ml';
+  if(w<17)return'3.5 ml';
+  if(w<20)return'4 ml';
+  return'5 ml';
+}
+function coughSyrupChart(w){
+  if(w<9)return'—';
+  if(w<13)return'2.5 ml';
+  if(w<16)return'3 ml';
+  if(w<18)return'3.5 ml';
+  return'4 ml';
+}
+function calculateAll(w){
+  if(!w||w<=0)return null;
+  return{
+    paracDrops:(15*w)/100,
+    paracDolo120:(15*5*w)/120,
+    paracDolo250:(15*5*w)/250,
+    paracFep500:(15*5*w)/500,
+    paracTablet:15*w,
+    cold:coldSyrupChart(w),
+    cough:coughSyrupChart(w),
+    fen50:(13*5*w)/120,
+    fen100:(13*5*w)/250,
+    amox80:(10*w)/80,
+    fightox:(15*5*w)/228,
+    augmentin:(15*5*w)/400,
+    azithral:(10*5*w)/200,
+    domstal:(0.4*w)/10,
+    emeset:(0.1*5*w)/2,
+    vomTablet:(0.1*w)/4,
+    domstalSyrup:(0.3*5*w)/5,
+    cefi50:(25*w)/50,
+    ziprox100:(25*w)/100,
+    hicope:(0.5*5*w)/10
+  };
+}
+const weightInput=document.getElementById('weight');
+const calcBtn=document.getElementById('calcBtn');
+
+function updateUI(){
+  const w=Number(weightInput.value);
+  const d=calculateAll(w);
+  const map={
+    'parac-drops':['paracDrops','ml'],
+    'parac-dolo120':['paracDolo120','ml'],
+    'parac-dolo250':['paracDolo250','ml'],
+    'parac-fep500':['paracFep500','ml'],
+    'parac-tablet':['paracTablet','mg'],
+    'cold-syrup':['cold',''],
+    'cough-syrup':['cough',''],
+    'fen50':['fen50','ml'],
+    'fen100':['fen100','ml'],
+    'amox-drops':['amox80','ml'],
+    'fightox':['fightox','ml'],
+    'augmentin':['augmentin','ml'],
+    'azithral':['azithral','ml'],
+    'domstal':['domstal','ml'],
+    'emeset':['emeset','ml'],
+    'vom-tablet':['vomTablet','mg'],
+    'domstal-syrup':['domstalSyrup','ml'],
+    'cefi50':['cefi50','ml'],
+    'ziprox100':['ziprox100','ml'],
+    'hicope':['hicope','ml']
+  };
+  for(const [id,[key,unit]] of Object.entries(map)){
+    const el=document.getElementById(id);
+    if(!el)continue;
+    if(!d){el.textContent='— '+unit;continue;}
+    if(unit==='ml' || unit==='mg')el.textContent=fmtVal(d[key],unit);
+    else el.textContent=d[key];
+  }
+}
+
+calcBtn.addEventListener('click',updateUI);
+weightInput.addEventListener('input',()=>{clearTimeout(weightInput._deb);weightInput._deb=setTimeout(updateUI,300);});
+weightInput.addEventListener('keydown',e=>{if(e.key==='Enter')updateUI();});
+window.onload=()=>{
+  weightInput.focus();
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').then(()=>console.log('✅ Service Worker Registered'));
+  }
+};
+</script>
+</body>
+  </html>
